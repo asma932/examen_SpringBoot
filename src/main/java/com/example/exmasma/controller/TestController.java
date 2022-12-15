@@ -1,6 +1,7 @@
 package com.example.exmasma.controller;
 
 import com.example.exmasma.entities.Project;
+import com.example.exmasma.entities.Sprint;
 import com.example.exmasma.entities.User;
 import com.example.exmasma.service.IService;
 import lombok.AllArgsConstructor;
@@ -10,7 +11,7 @@ import java.util.List;
 
 @AllArgsConstructor
 @RestController
-public class UserController {
+public class TestController {
     IService iService;
 
     @PostMapping("/addUser")
@@ -38,6 +39,11 @@ public class UserController {
     public List<Project> getProjectsByScrumMaster(@PathVariable("fName")  String fName, @PathVariable("lName")  String lName ){
 
         return iService.getProjectsByScrumMaster(fName,lName);
+    }
+    @PostMapping("/addSprintAndAssignToProject/{idProject}")
+    @ResponseBody
+    public void addSprintAndAssignToProject(@RequestBody Sprint sprint ,@PathVariable("idProject")int idProject  ){
+        iService.addSprintAndAssignToProject(sprint,idProject);
     }
 
 }

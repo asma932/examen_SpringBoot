@@ -7,14 +7,15 @@ import com.example.exmasma.reposirory.ProjectRepository;
 import com.example.exmasma.reposirory.SprintRepository;
 import com.example.exmasma.reposirory.UserRepository;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.XSlf4j;
+
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
+
 
 
 
@@ -33,31 +34,26 @@ public class ServiceImpl implements IService {
     }
 
     @Override
-    public Project addProject(Project projet) {
-        Sprint sprint = saveSprint(projet);
-        sprint.setProjet(projet);
-        projectRepository.save(projet);
-        return projet;
-    }
+    @Transactional
+    public Project addProject(Project pro) {
+        for(Sprint s : pro.getSprints()){
 
-
-    private Sprint saveSprint(Project projet) {
-
-            Set<Sprint> Sprint = (Set<Sprint>) projet.getSprints();
-            for (Sprint sprint : projet.getSprints()) {
-                return sprintRepository.save(sprint);
-            }
-            return null;
+            s.setProjet(pro);
+            sprintRepository.save(s);
         }
+        return projectRepository.save(pro);
+    }
     @Override
     public void assignProjectToScrum(int projectId, String fName, String lName) {
-        Project e = projectRepository.findById(projectId).orElse(null);
+        Project p = projectRepository.findById(projectId).orElse(null);
         User u= userRepository.finduserByNomEAndPrenomE(fName,lName);
-        projectRepository.save(e);
-
-
-
+        p.getUsers().add(u);
+        u.getProjet().add(p);
+        userRepository.save(u);
     }
+
+
+
     @Override
     public void assignProjectToDevoloper(int projectId, int devId) {
         Project e = projectRepository.findById(projectId).orElse(null);
@@ -85,10 +81,13 @@ public class ServiceImpl implements IService {
 
     @Override
     public List<Project> getProjectsByScrumMaster(String fName, String lname) {
-         User u= userRepository.finduserByNomEAndPrenomE(fName, lname);
-        List<Project > s = new ArrayList<>(u.getProjet());
 
-        return s;
-    }
+            User user = userRepository.finduserByNomEAndPrenomE(fName,lname);
+            List<Project> listProject = new ArrayList<>(user.getProjet());
+            return listProject;
+        }
+
 
 }
+
+
